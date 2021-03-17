@@ -194,17 +194,21 @@ class View extends CI_Controller
 
     	$data['userRoles']=$this->userRoles;
 
+
     	$data['adminMode']=$this->adminMode;
     	$data['nonAdminType']=$this->nonAdminType;
 
     	$data['pageMode']=$mode;
 
+
     	$data=$this->fetchMenu($data);
-    	if(!in_array(67,json_decode($data[userRoles]))){
+
+    	if(!in_array(61,json_decode($data['userRoles']))){
     		redirect('view/index');
 
 		}
     	$data['allWarehouse']=$this->Admin_model->getWarehouse();
+
 
     	if($mode=="edit"){
     		$data['warehouse_Info']=$this->Admin_model->getWarehouse($id);

@@ -30,7 +30,7 @@ class Admin_model extends CI_Model
     function authorize($username, $password)
     {
         //Get the system user data for the user with the specifiedemai address
-        //This data is what is sctored in the userdata of the session and used to verify useroles and other key features
+        //This data is what is stored in the userdata of the session and used to verify useroles and other key features
         $sql="SELECT * FROM systemusers WHERE userPhone='".$username."'AND userLoginStatus='1'";
         $qry=$this->db->query($sql);
 
@@ -97,6 +97,9 @@ class Admin_model extends CI_Model
 
     //generic add  items function with value to be specified being table,array to be added or edited and a datananme that
     //specifies value that is affected that is used to customize sucess or error messages
+
+
+
 function editItems($table,$array,$edit_array,$dataname){
         $qry=$this->db->update($table,$array,$edit_array);
 
@@ -729,12 +732,19 @@ function deleteItems($table,$array,$dataname){
 
     }
 
-    function getWarehouse($id=""){
-    	$sql= "SELECT * from warehouse WHERE warehouse_Id=$id";
+    function getWarehouse($id=''){
+    	$sql= "SELECT * from warehouse ORDER BY warehouse_Id DESC";
+
+    	if($id=''){
+    	$sql="SELECT * from warehouse WHERE warehouse_Id=$id";
+		}
 
     	$allWarehouseData=$this->db->query($sql);
+
+
     	if($allWarehouseData !==FALSE){
     		return $allWarehouseData->result();
+
 		}
 
 

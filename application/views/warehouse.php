@@ -1,7 +1,7 @@
 <div class="container">
   <div class="row">
 	  <div class="col-md-12">
-      <h3 class="mb-35 title-5" >     </h3>
+      <h3 class="mb-35 title-5" > $page_title    </h3>
 		  <div class="table-data__tool">
 			  <div class="table-data__tool-left">
 				  <div class="rs-select2--light rs-select2--md">
@@ -87,6 +87,22 @@
 
 			  </thead>
 			  <tbody>
+
+			  <?php if( isset($allWarehouse) && is_array($allWarehouse)&& count($allWarehouse)>=0){
+                 $itemCount=0;
+			  	 foreach($allWarehouse as $dataRow){
+			  	      $itemCount+=1;
+                      $wh_Name= $dataRow->warehouse_Name;
+                      $wH_Loc=$dataRow->warehouse_Coordinates;
+                      $wH_C_Cap=$dataRow->warehouse_Full_Capacity;
+                      $wH_A_Cap=$dataRow->warehouse_Present_Capacity;
+                      $wH_Desc=$dataRow->warehouse_Description;
+                      $wH_Temp=$dataRow->warehouse_Temp;
+				 }
+
+			  	 if(is_array('61',json_decode($userRoles)));
+
+			  }?>
 
 
 			  </tbody>
