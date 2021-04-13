@@ -8,18 +8,17 @@
         <div class="card-body card-block">
             <?php
             $formAction=$pageMode=='edit'?'view/crud/users/edit':'view/crud/users/add';
-
-            $userId="";
-            $userFirstName="";
-            $userSecondName="";
-            $userEmailAddress="";
-            $userPhone="";
-            $userDateRegistered="";
-            $userImage="";
-            $userRoleGroup="";
-            $userPassword="";
-            $userLoginStatus="";
-            $userLastLogin="";
+				   $userId='';
+                   $userFirstName='';
+                   $userSecondName='';
+                    $userEmailAddress='';
+                    $userPhone='';
+                    $userDateRegistered='';
+                    $userImage='';
+                    $userRoleGroup='';
+                    $userPassword='';
+                    $userLoginStatus='';
+                    $userLastLogin='';
             if(isset($user_Info)) {
              $dataRow=$user_Info[0];
              $userId=$dataRow->userId;

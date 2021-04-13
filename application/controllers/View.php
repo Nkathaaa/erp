@@ -96,6 +96,7 @@ class View extends CI_Controller
 
 
 
+
         // find menu that can be shown to this user
         //function fetches menu based on user's roles
        $data = $this->fetchMenu($data);
@@ -144,7 +145,37 @@ class View extends CI_Controller
 
         $this->load->view('utils/template',$data);
     }
+    function sms($mode='',$id=''){
+        $data['page_title']='Sms';
+        $data['page_content']='sms';
 
+        $data['userRoles']=$this->userRoles;
+        $data['pageMode']=$mode;
+        $data['adminMode']=$this->adminMode;
+        $data['nonAdminType']=$this->nonAdminType;
+
+        //wherev do I sendSMS
+        if(!in_array('65',json_decode($data['userRoles']))){
+            redirect('view/index');
+        }
+        $data['allSMSInfo']=$this->Admin_model->getSms();
+        if($mode=='add'){
+            $data['page_content']='utils/form_sms';
+        }elseif($mode=='edit'){
+            $data['page_content']='utils/form_sms';
+            $data['specificIdSmsInfo']=$this->Admin_model->getSms($id);
+
+
+        }
+        if($mode=='delete')
+        {
+            $this->delete('sms',$id);
+
+        }
+        $data = $this->fetchMenu($data);
+        $this->load->view('utils/template',$data);
+
+    }
     function userGroups($mode='',$id=''){
         $data['page_title']='User Groups';
         $data['page_content']='usergroups';
@@ -212,19 +243,21 @@ class View extends CI_Controller
 
     	if($mode=="edit"){
     		$data['warehouse_Info']=$this->Admin_model->getWarehouse($id);
-    		$data['page_content']='utils/form_warehouse.php';
+    		$data['page_content']='utils/form_warehouse';
 		}elseif($mode=="add"){
-    		$data['page_content']='utils/form_warehouse.php';
+    		$data['page_content']='utils/form_warehouse';
 
 		}
     	if($mode=="delete"){
-    		$this->delete('form_warehouse',$id);
+    		$this->delete('warehouse',$id);
 
 		}
-    	$this->load->view('/utils/template',$data);
+
+    	$this->load->view('utils/template', $data);
 
 
 	}
+
 
     function tasks($mode='',$id=''){
         $data['page_title']='Tasks';
@@ -327,6 +360,7 @@ class View extends CI_Controller
         $this->load->view('utils/template',$data);
 
     }
+
     function departments($mode='',$id=''){
         $data['page_title']='Departments';
         $data['page_content']='departments';
@@ -880,11 +914,13 @@ class View extends CI_Controller
                 case "users":
                     $actionTarget .= "-Item_Id:" . $this->input->post('userId');
                     break;
+                case "sms":
+                    $actionTarget .="-Item_Id:". $this->input->post('smsId');
                 case "clients":
                     $actionTarget .= "-Item_Id:".$this->input->post('clientId');
                     break;
 				case "warehouse":
-					$actionTarget .= "-Item_Id".$this->input->post('warehouse_Id');
+					$actionTarget .= "-Item_Id".$this->input->post('wH_Id');
                 case "events":
                     $actionTarget .="-Items_Id".$this->input->post('eventId');
                     break;
@@ -983,7 +1019,8 @@ class View extends CI_Controller
                         $conditions = array(
                             'staffId' => $staffId
                         );
-                        $this->Admin_model->editItems('staff', $data,$conditions,  'Staff');
+                       $this->Admin_model->editItems('staff', $data,$conditions,  'Staff');
+
 
 
 
@@ -999,14 +1036,51 @@ class View extends CI_Controller
 
 
                 break;
+            case  "sms":
+                if($mode=="edit") {
+                    if (!in_array('66', json_decode($this->userRoles))) {
+                        redirect('view/index');
+
+                    }
+                    $smsId = $this->input->post('smsId');
+                } else{
+                        if(!in_array('67',json_decode($this->userRoles))){
+                            redirect('view/index');
+                        }
+                    }
+                $smsTo=$this->input->post('smsTo');
+                $smsFrom=$this->input->post('smsFrom');
+                $message=$this->input->post('message');
+                $this->form_validation->set_rules('smsTo','sT','required');
+                if($this->form_validation->run()==FALSE){
+                    redirect('view/index');
+
+                }else{
+                    $data=array(
+                        'smsTo'=>$smsTo,
+                        'smsFro'=>$smsFrom,
+                        'message'=>$message,
+                    );
+
+                    if($mode=='add') {
+                        $this->Admin_model->addItems('sms', $data, 'SMS');
+                    }elseif($mode=="edit"){
+                        $conditions=array("smsId"=>smsId);
+                        $this->Admin_model->editItems('sms',$conditions,$data,"SMS");
+
+                    }
+                }
+                redirect('view/index');
+                break;
 			case  "warehouse":
 				if($mode =="edit") {
-					if (!in_array('59', json_decode($this->userRoles))) {
+
+					if (!in_array('62', json_decode($this->userRoles))) {
 						redirect('view/index');
 					}
 					$wH_Id = $this->input->post('wH_Id');
 				}else {
-					if(!in_array('61',json_decode($this->userRoles))){
+					if(!in_array('59',json_decode($this->userRoles))){
 						redirect('view/index');
 
 					}
@@ -1016,7 +1090,7 @@ class View extends CI_Controller
 				$wH_Loc=$this->input->post('wH_Loc');
 			    $wH_C_Cap=$this->input->post('wH_C_Cap');
 			    $wH_A_Cap=$this->input->post('wH_A_Cap');
-			    $wH_Desc=$this->input->post('wH_Desc');
+
 			    $wH_Temp=$this->input->post('wH_Temp');
 
 
@@ -1025,21 +1099,27 @@ class View extends CI_Controller
 			    	redirect('view/index');
 				}else{
 			    	$data=array(
-			    		'wH_Name'=>$wH_Name,
-						'wH_Loc'=>$wH_Loc,
-						'wH_C_Cap'=> $wH_C_Cap,
-						'wH_A_Cap'=>$wH_A_Cap,
-						'wH_Desc'=>$wH_Desc,
-						'wH_Temp'=>$wH_Temp
+			    		'warehouse_Name'=>$wH_Name,
+						'warehouse_Coordinates'=>$wH_Loc,
+						'warehouse_Full_Capacity'=> $wH_C_Cap,
+						'warehouse_Present_Capacity'=>$wH_A_Cap,
+						'warehouse_Temp'=>$wH_Temp
 
 					);
 
-			    	if($mode == 'edit'){
-			    		$conditions=array('wh_Id'=>$wH_Id);
-			    		$this->Admin_model->editItems('warehouse',$data,$conditions,'Warehouse');
-					} else{
-			    		$this->Admin_model->addItems('warehouse',$data,'Warehouse');
-					};
+					if ($mode == 'edit') {
+						$conditions = array('warehouse_Id' => $wH_Id);
+						print_r($conditions);
+						exit();
+
+						$this->Admin_model->editItems('warehouse', $data, $conditions, "Warehouse");
+
+					} else {
+
+						$this->Admin_model->addItems('warehouse', $data, "Warehouse");
+
+					}
+
 			    	redirect('view/warehouse');
 
 				}
@@ -1451,6 +1531,8 @@ class View extends CI_Controller
                     );
                     if ($mode == 'edit') {
                         $conditions = array('accountId' => $accountId);
+
+
                         $this->Admin_model->editItems('accounts', $data, $conditions, 'Account');
 
                     } else
@@ -1611,7 +1693,7 @@ class View extends CI_Controller
         	if(!in_array('63',json_decode($this->userRoles))){
         		redirect('view/index');
 			}
-        	$data=array('wH_Id'=>$id);
+        	$data=array('warehouse_Id'=>$id);
         	$this->Admin_model->deleteItems('warehouse',$data,'Warehouse');
 
 		}

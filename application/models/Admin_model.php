@@ -31,7 +31,7 @@ class Admin_model extends CI_Model
     {
         //Get the system user data for the user with the specifiedemai address
         //This data is what is stored in the userdata of the session and used to verify useroles and other key features
-        $sql="SELECT * FROM systemusers WHERE userPhone='".$username."'AND userLoginStatus='1'";
+        $sql="SELECT * FROM systemusers WHERE=userEmailAddress'".$username."'AND userLoginStatus='1'";
         $qry=$this->db->query($sql);
 
         //if theere os no return value for email entered...try using phone number or vice versa
@@ -41,11 +41,10 @@ class Admin_model extends CI_Model
 		//The system is using email address
 		//Phone number functionality isnt complete
         if($qry!==FALSE||!is_array($qry)||count($qry->result())<=0){
-            $sql="SELECT * FROM systemusers WHERE userEmailAddress='".$username."'AND userLoginStatus='1'";
+            $sql="SELECT * FROM systemusers WHERE  userPhone='".$username."'AND userLoginStatus='1'";
 
 
             $qry=$this->db->query($sql);
-
 
 			$result=$qry->result();
 
@@ -735,7 +734,7 @@ function deleteItems($table,$array,$dataname){
     function getWarehouse($id=''){
     	$sql= "SELECT * from warehouse ORDER BY warehouse_Id DESC";
 
-    	if($id=''){
+    	if($id!=''){
     	$sql="SELECT * from warehouse WHERE warehouse_Id=$id";
 		}
 
@@ -1010,6 +1009,7 @@ function deleteItems($table,$array,$dataname){
 
    }
 
+
    function getLogs($id='',$limit='')
    {
        $sql="SELECT * FROM  logs ORDER BY logId";
@@ -1032,7 +1032,40 @@ function deleteItems($table,$array,$dataname){
    }
 
 
+ function getSMS(){
+     $username   = "sandbox";
+     $apiKey     = "737ceb7bd466eaf245d722ac56802e01b9f36bd3a9b4bd0f4db11b8d325ee382";
 
+// Initialize the SDK
+     $AT         = new AfricasTalking($username, $apiKey,'sanbox');
+
+// Get the SMS service
+     $sms        = $AT->sms();
+
+// Set the numbers you want to send to in international format
+     $recipients = "+254721270558,+254701439562";
+
+// Set your message
+     $message    = "This is a sec test message";
+
+// Set your shortCode or senderId
+//$from
+
+     try {
+         // Thats it, hit send and we'll take care of the rest
+         $result = $sms->send([
+             'to' => $recipients,
+             'message'=> $message,
+             // 'from'=>$from
+
+         ]);
+
+         print_r($result);
+     } catch (Exception $e) {
+         echo "Error: ".$e->getMessage();
+     }
+
+ }
 
 
 }
