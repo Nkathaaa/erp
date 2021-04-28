@@ -313,6 +313,9 @@ $config['cache_path'] = '';
 */
 $config['cache_query_string'] = FALSE;
 
+$config['composer_autoload'] = 'vendor/autoload.php';
+
+
 /*
 |--------------------------------------------------------------------------
 | Encryption Key

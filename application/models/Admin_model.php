@@ -1029,6 +1029,8 @@ function deleteItems($table,$array,$dataname){
           return $allData->result();
        }
 
+
+
    }
 
 
@@ -1053,12 +1055,12 @@ function deleteItems($table,$array,$dataname){
 
      try {
          // Thats it, hit send and we'll take care of the rest
-         $result = $sms->send([
+         $result = $sms->send(array(
              'to' => $recipients,
              'message'=> $message,
              // 'from'=>$from
 
-         ]);
+         ));
 
          print_r($result);
      } catch (Exception $e) {

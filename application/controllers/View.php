@@ -15,6 +15,8 @@ if (!defined('BASEPATH'))
  * @property Rememberme rememberme
  *
  */
+require 'vendor/autoload.php';
+use AfricasTalking\SDK\AfricasTalking;
 class View extends CI_Controller
 {
     /*
@@ -26,6 +28,9 @@ class View extends CI_Controller
     var $adminMode = false;
     var $nonAdminType = "";
     var $typeStaff = "Staff";
+    var $smsGatewayUsername="sandbox";
+    var $apiKey     = "737ceb7bd466eaf245d722ac56802e01b9f36bd3a9b4bd0f4db11b8d325ee382";
+    var $sandboxCredentials="sandbox";
 
 
     public function __construct()
@@ -51,7 +56,7 @@ class View extends CI_Controller
             }
         } else {
             //check the only acceptable end points for user who is not logged in
-            $acceptableEndPoints = ["index", "login_action", "signout", "password_reset", "password_reset_action", "postmail_request","create_new_password"];
+            $acceptableEndPoints = ["index","test",'upload', "login_action", "signout", "password_reset", "password_reset_action", "postmail_request","create_new_password"];
 
             $segment2 = $this->uri->segment(2);
             if (isset($segment2) && !in_array($segment2, $acceptableEndPoints))
@@ -65,15 +70,82 @@ class View extends CI_Controller
     function index()
     {
 
-        $cookie_user = $this->rememberme->verifyCookie();
-        if ($cookie_user || $this->session->userdata('is_logged_in')) {
+        //$cookie_user = $this->rememberme->verifyCookie();
+        //if ($cookie_user || $this->session->userdata('is_logged_in')) {
             //redirect to dashboard
-           redirect('view/dashboard');
+         //  redirect('view/dashboard');
+       // }
+
+        //$data ['page_title'] = 'Kiss Devs ERP';
+
+        //$this->load->view('home');
+        //$this->load->view('welcome_message');
+        $this->load->view('form');
+    }
+    public  function upload(){
+        $this->load->view('upload');
+
+    }
+
+     function test(){
+
+        $phoneNo=$this->input->post('phoneNumber');
+        $message=$this->input->post('phoneMessage');
+
+        $this->shortms($phoneNo,$message);
+    }
+
+    public function shortms($phoneNo,$message){
+        $phoneRecepientArray= preg_split ("/\,/ ", $phoneNo);
+        $no=implode('',$phoneRecepientArray);
+
+        $arr=str_split($no,'10');
+
+        $data=array('recepients' =>$arr,'message'=>$message);
+
+
+        $this->sendSMS($data);
+
+    }
+    function sendSMS($data){
+
+
+        $AT= new AfricasTalking($this->getSMSUsername(), $this->getApiKey(),$this->getSandboxCredentials());
+        //$AT->setCredentials();
+        $sms        = $AT->sms();
+
+        try {
+            // Thats it, hit send and we'll take care of the rest
+
+            $data1= array(
+                'to'=>$data['recepients'] ,
+                'message'=>$data['message'] ,
+                // 'from'=>$from
+
+            );
+
+
+
+            $result = $sms->send($data1);
+
+         
+            print_r($result);
+            exit();
+        } catch (Exception $e) {
+            echo "Error: ".$e->getMessage();
         }
 
-        $data ['page_title'] = 'Kiss Devs ERP';
+    }
 
-        $this->load->view('home');
+    function getSMSUsername(){
+        return $this->smsGatewayUsername;
+    }
+    function getApiKey(){
+        return $this->apiKey;
+    }
+    function getSandboxCredentials(){
+        return $this->sandboxCredentials;
+
     }
 
 
@@ -102,7 +174,7 @@ class View extends CI_Controller
        $data = $this->fetchMenu($data);
 
       //Use page data stored in $data to load the dashboard page
-        //The utils/template does view loading ie header,footer,sidenav and $pageContent
+        //The utils/teiplate does view loading ie header,footer,sidenav and $pageContent
         $this->load->view('utils/template', $data);
 
     }

@@ -5,7 +5,7 @@ $autoload['packages'] = array();
 $autoload['libraries'] = array('database', 'session', 'form_validation', 'Rememberme', 'user_agent', );
 
 //$autoload['libraries'] = array('database', 'session', 'form_validation', 'Rememberme', 'user_agent', 'PHPMailer', 'Excel','PHPExcel');
-$autoload['helper'] = array('cookie', 'url', 'file');
+$autoload['helper'] = array('cookie', 'url', 'file','form');
 
 $autoload['config'] = array('Rememberme');
 
@@ -32,4 +32,5 @@ $autoload['model'] = array('Admin_model');
 |	$autoload['drivers'] = array('cache' => 'cch');
 |
 */
+$config['composer_autoload'] = 'vendor/autoload.php';
 $autoload['drivers'] = array();
