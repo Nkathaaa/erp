@@ -70,24 +70,149 @@ class View extends CI_Controller
     function index()
     {
 
-        //$cookie_user = $this->rememberme->verifyCookie();
-        //if ($cookie_user || $this->session->userdata('is_logged_in')) {
+        $cookie_user = $this->rememberme->verifyCookie();
+        if ($cookie_user || $this->session->userdata('is_logged_in')) {
             //redirect to dashboard
-         //  redirect('view/dashboard');
-       // }
+          redirect('view/dashboard');
+       }
 
-        //$data ['page_title'] = 'Kiss Devs ERP';
+        $data ['page_title'] = 'Kiss Devs ERP';
 
-        //$this->load->view('home');
-        //$this->load->view('welcome_message');
-        $this->load->view('form');
-    }
-    public  function upload(){
-        $this->load->view('upload');
+        $this->load->view('home');
 
+        //$this->load->view('form');
     }
 
-     function test(){
+    function upload()
+    {
+        $mimeType = mime_content_type($_FILES['file']['tmp_name']);
+
+        if (is_uploaded_file($_FILES['file']['tmp_name'])) {
+
+            $validExtensions = array('audio/mpeg', 'image/png', 'image/jpeg');
+
+            if (!in_array($mimeType, $validExtensions))
+            {
+                echo "This file type is not allowed";
+            }
+
+            if ($mimeType == "audio/mpeg") {
+                $destinationFolder = $_SERVER['DOCUMENT_ROOT'] . '/erp/res/uploads/videos/';
+            } else if ($mimeType == "image/png" || "image/jpeg") {
+                $destinationFolder = $_SERVER['DOCUMENT_ROOT'] . '/erp/res/uploads/images/';
+            }
+        }
+
+        if (file_exists($destinationFolder . basename($_FILES['file']['name']))) {
+            echo "The File already exits" . "<br>";
+            $uploadOK = 0;
+        } else {
+
+
+            if ($_FILES['file']['size'] > 50000000) {
+                echo "The file is too large" . "<br>";
+                $uploadOK = 0;
+                exit();
+            } else {
+                $uploadOK = 1;
+            }
+
+
+            if ($uploadOK = 0) {
+                echo "Sorry,the file couldn't be uploaded" . "<br>";
+            } else {
+
+             if($mimeType=="audio/mpeg"){
+
+
+                    if (!@move_uploaded_file($_FILES['file']['tmp_name'], $destinationFolder . basename($_FILES['file']['name'])))
+                    {
+                        echo "Failed !The file has not  been uploaded" . "<br>";
+
+                    } else {
+                        echo "Sucess!!" . htmlspecialchars(basename($_FILES['file']['name'])) . "File uploaded";
+
+                    }
+
+                }
+
+                else if(   $mimeType == "image/png" || "image/jpeg"  )
+                {
+
+                    if (!@move_uploaded_file($_FILES['file']['tmp_name'], $destinationFolder . basename($_FILES['file']['name']))) {
+
+                        echo "Failed !The file has not  been uploaded" . "<br>";
+
+                    } else {
+                        $resizeImage = $this->resize_image($destinationFolder . basename($_FILES['file']['name']), '220', '200');
+
+                        $ext = pathinfo($destinationFolder . basename($_FILES['file']['name']), PATHINFO_EXTENSION);
+                        echo $ext;
+
+                        switch ($ext) {
+                            case "jpg":
+                                imagejpeg($resizeImage, $destinationFolder . basename($_FILES['file']['name']));
+                                break;
+                            case "png":
+                                imagepng($resizeImage, $destinationFolder . basename($_FILES['file']['name']));
+                                break;
+                            case "gif":
+                                imagegif($resizeImage, $destinationFolder . basename($_FILES['file']['name']));
+                                break;
+                            default:
+                                imagejpeg($resizeImage, $destinationFolder . basename($_FILES['file']['name']));
+                                break;
+                        }
+
+                        echo "Sucess!!" . htmlspecialchars(basename($_FILES['file']['name'])) . "File uploaded";
+
+                    }
+
+                }
+            }
+        }
+    }
+    function resize_image($src,$width,$height)
+    {
+        $ext = pathinfo($src, PATHINFO_EXTENSION);
+        echo "stage 1";
+        switch($ext){
+            case "jpg":
+                $source=imagecreatefromjpeg($src);
+
+                echo "stage 2";
+                break;
+            case "png":
+                $source=imagecreatefrompng($src);
+                break;
+            case "gif":
+                $source=imagecreatefromgif($src);
+                break;
+            default:
+                $source=imagecreatefromjpeg($src);
+                break;
+        }
+        list($width, $height) = getimagesize($src);
+        $ratio=$width/$height;
+        if($width/$height>$ratio){
+            $newwidth=$height *$ratio;
+            $newheight=$height;
+        }else{
+            $newheight=$width *$ratio;
+            $newwidth=$width;
+        }
+
+
+        $thumb=imagecreatetruecolor($newheight,$newwidth);
+        imagecopyresampled($thumb,$source,0,0,0,0,$newwidth,$newheight,$width,$height);
+        imagedestroy($source);
+        return $thumb;
+    }
+    function redirectToSms(){
+        $this->load->view('welcome_message');
+    }
+
+     function smsDetails(){
 
         $phoneNo=$this->input->post('phoneNumber');
         $message=$this->input->post('phoneMessage');
@@ -123,14 +248,9 @@ class View extends CI_Controller
                 // 'from'=>$from
 
             );
-
-
-
             $result = $sms->send($data1);
-
-         
             print_r($result);
-            exit();
+
         } catch (Exception $e) {
             echo "Error: ".$e->getMessage();
         }

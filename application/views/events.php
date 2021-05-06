@@ -27,7 +27,7 @@
             <div class="table-data__tool-right">
                 <button class="au-btn au-btn-icon au-btn--green au-btn--small" onclick="location.href='<?php echo site_url('view/events/add')?>'">
                     <i class="zmdi zmdi-plus"></i>add new</button>
-                <button class="au-btn au-btn-icon au-btn--blue au-btn--small" onclick="location.href='<?php echo site_url('view/sms/add')?>'">
+                <button class="au-btn au-btn-icon au-btn--blue au-btn--small" onclick="location.href='<?php echo site_url('view/redirectToSms')?>'">
                     <i class="zmdi zmdi-envelope"></i>send SMS</button>
                 <div class="rs-select2--dark rs-select2--sm rs-select2--dark2">
                     <select class="js-select2" name="type">
